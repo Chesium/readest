@@ -357,12 +357,21 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   }, [bookHash, backend]);
 
   const handleIndex = useCallback(async () => {
+    // TEMP(debug): log why a click may bail out before indexing
+    console.warn('[TEMP index debug] click', {
+      hasBookDoc: !!bookData?.bookDoc,
+      provider: aiSettings?.provider,
+      reedy: aiSettings?.reedy,
+      backend: backend?.kind ?? null,
+    });
     if (!bookData?.bookDoc || !aiSettings || !backend) return;
     setIsIndexing(true);
     try {
       await backend.indexBook(bookData.bookDoc, bookHash, { onProgress: setIndexProgress });
       setIndexed(true);
     } catch (e) {
+      // TEMP(debug): surface the swallowed indexing error
+      console.error('[TEMP index debug] backend=', backend.kind, e);
       aiLogger.rag.indexError(bookHash, (e as Error).message);
     } finally {
       setIsIndexing(false);
