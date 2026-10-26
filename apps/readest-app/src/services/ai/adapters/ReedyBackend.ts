@@ -39,7 +39,7 @@ export class ReedyBackend implements RetrievalBackend {
     indexer: BookIndexer;
     retriever: BookRetriever;
   }>;
-  private readonly model: ReedyEmbeddingModel;
+  private readonly model: AdaptedEmbeddingModel;
   /**
    * Metrics writer — lazy because we don't want construction to block on
    * the DB open. Until the DB is ready, events go to a NoopWriter (events
@@ -85,6 +85,8 @@ export class ReedyBackend implements RetrievalBackend {
     const { indexer, reedy } = await this.reedyReady;
     this.metrics.log('book_indexing_started', { bookHash });
     try {
+      // BookIndexer writes model.dim into the meta row before it embeds anything.
+      await this.model.ensureDim({ signal: options?.signal });
       await indexer.indexBook(bookDoc, bookHash, this.model, {
         onProgress: options?.onProgress
           ? (event): void => {
@@ -183,12 +185,17 @@ function randomSessionId(): string {
   return `session-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+interface AdaptedEmbeddingModel extends ReedyEmbeddingModel {
+  /** Learn `dim` with a one-sample round-trip if no embed() has run yet. */
+  ensureDim(opts?: { signal?: AbortSignal }): Promise<void>;
+}
+
 /**
  * Wrap the active AI provider's Vercel `EmbeddingModel` into Reedy's
  * narrower interface (id + dim + embed). We don't import provider modules
  * directly — they're already constructed by `getAIProvider(settings)`.
  */
-function adaptEmbeddingModel(settings: AISettings): ReedyEmbeddingModel {
+function adaptEmbeddingModel(settings: AISettings): AdaptedEmbeddingModel {
   const provider = getAIProvider(settings);
   const vercelModel = provider.getEmbeddingModel();
   const id = embeddingModelIdFor(settings);
@@ -226,6 +233,10 @@ function adaptEmbeddingModel(settings: AISettings): ReedyEmbeddingModel {
       });
       if (embeddings.length > 0) dim ??= embeddings[0]!.length;
       return embeddings;
+    },
+    async ensureDim(opts): Promise<void> {
+      if (dim != null) return;
+      await this.embed(['dimension probe'], opts);
     },
   };
 }
