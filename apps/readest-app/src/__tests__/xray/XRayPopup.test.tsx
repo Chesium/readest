@@ -1,8 +1,9 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import XRayPopup from '@/app/reader/components/annotator/XRayPopup';
+import { useBookDataStore, type BookData } from '@/store/bookDataStore';
 
 const mocks = vi.hoisted(() => ({
   aiSettings: {
@@ -110,6 +111,34 @@ describe('XRayPopup', () => {
 
     expect(mocks.goTo).toHaveBeenCalledWith('epubcfi(/6/2!/4/2/1:0)');
     expect(onDismiss).toHaveBeenCalledOnce();
+  });
+
+  it('bounds the lookup by the furthest position read, not the page shown', async () => {
+    useBookDataStore.setState({
+      booksData: {
+        booka: {
+          id: 'booka',
+          config: { updatedAt: 0, xrayReadThroughCfi: 'epubcfi(/6/8!/4/2/1:0)' },
+        } as BookData,
+      },
+    });
+    render(
+      <XRayPopup
+        term='Alice'
+        bookKey='booka-view'
+        currentCfi='epubcfi(/6/4!/4/2/1:20)'
+        language='en'
+        position={popupPosition}
+        trianglePosition={popupPosition}
+        popupWidth={360}
+        popupHeight={260}
+      />,
+    );
+
+    await waitFor(() =>
+      expect(mocks.lookup).toHaveBeenCalledWith('booka', 'epubcfi(/6/8!/4/2/1:0)', 'Alice', 'en'),
+    );
+    useBookDataStore.setState({ booksData: {} });
   });
 
   it.each([

@@ -27,11 +27,12 @@ import type {
   XRaySnapshot,
 } from '@/services/ai/xray/types';
 import { useBookDataStore } from '@/store/bookDataStore';
-import { useBookProgress } from '@/store/readerProgressStore';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { formatTitle, getContributorNames } from '@/utils/book';
 import { eventDispatcher } from '@/utils/event';
+import { useXRayReadThroughCfi } from '../../hooks/useXRayReadThroughCfi';
+import { navigateToXRayEvidence } from '../../utils/xrayEvidenceNavigation';
 import XRayEvidenceLabel from '../XRayEvidenceLabel';
 
 interface XRayViewProps {
@@ -45,7 +46,6 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
   const { appService } = useEnv();
   const bookHash = bookKey.split('-')[0] ?? '';
   const bookDoc = useBookDataStore((state) => state.booksData[bookHash]?.bookDoc ?? null);
-  const progress = useBookProgress(bookKey);
   const getView = useReaderStore((state) => state.getView);
   const aiSettings = useSettingsStore((state) => state.settings.aiSettings);
   const [activeTab, setActiveTab] = useState<ExplorerTab>('entities');
@@ -60,7 +60,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
   const updateController = useRef<AbortController | null>(null);
-  const currentCfi = progress?.location ?? '';
+  const currentCfi = useXRayReadThroughCfi(bookKey);
 
   const load = useCallback(async (): Promise<void> => {
     if (
@@ -193,10 +193,8 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
     }
   };
 
-  const navigateToEvidence = (evidence: XRayEvidenceLocator): void => {
-    if (evidence.inferred || !evidence.startCfi) return;
-    getView(bookKey)?.goTo(evidence.startCfi);
-  };
+  const navigateToEvidence = (evidence: XRayEvidenceLocator): void =>
+    void navigateToXRayEvidence(getView(bookKey), evidence);
   const snapshot =
     currentCfi && snapshotCfi && CFI.compare(currentCfi, snapshotCfi) >= 0 ? loadedSnapshot : null;
 

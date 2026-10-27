@@ -36,6 +36,7 @@ import { BookData, useBookDataStore } from './bookDataStore';
 import { useLibraryStore } from './libraryStore';
 import { clearBookProgress, getBookProgress, setBookProgress } from './readerProgressStore';
 import { uniqueId } from '@/utils/misc';
+import { laterCfi } from '@/utils/cfi';
 import { getWidePages, type WidePagesOptions } from '@/utils/spread';
 
 interface ViewState {
@@ -506,6 +507,8 @@ export const useReaderStore = create<ReaderStore>((set, get) => ({
       useBookDataStore.setState((state) => {
         const existing = state.booksData[id];
         if (!existing) return state;
+        // A deep-link preview isn't reading, so it doesn't move X-Ray's bound.
+        const readThrough = existing.config?.xrayReadThroughCfi ?? existing.config?.location;
         return {
           booksData: {
             ...state.booksData,
@@ -515,6 +518,9 @@ export const useReaderStore = create<ReaderStore>((set, get) => ({
                 ...existing.config,
                 progress,
                 location,
+                xrayReadThroughCfi: viewState.previewMode
+                  ? readThrough
+                  : laterCfi(readThrough, location),
               } as BookConfig,
             },
           },

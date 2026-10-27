@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import XRayView from '@/app/reader/components/notebook/XRayView';
 import type { XRayProgressUpdate, XRayProgressUpdateResult } from '@/services/ai/xray/XRayService';
 import { eventDispatcher } from '@/utils/event';
+import * as CFI from 'foliate-js/epubcfi.js';
 
 const mocks = vi.hoisted(() => ({
   getSnapshot: vi.fn(),
@@ -13,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   getView: vi.fn(),
   getCFIProgress: vi.fn(),
   currentCfi: 'epubcfi(/6/2!/4/2/1:20)',
+  readThroughCfi: undefined as string | undefined,
   appService: { appPlatform: 'tauri' },
   aiSettings: {
     enabled: true,
@@ -54,6 +56,7 @@ vi.mock('@/store/bookDataStore', () => ({
           bookDoc: {
             metadata: { title: 'Book A', author: 'Author', language: 'en' },
           },
+          config: { xrayReadThroughCfi: mocks.readThroughCfi },
         },
       },
     }),
@@ -123,6 +126,7 @@ describe('XRayView', () => {
     mocks.getView.mockReturnValue({ goTo: mocks.goTo, getCFIProgress: mocks.getCFIProgress });
     mocks.getCFIProgress.mockResolvedValue(null);
     mocks.currentCfi = 'epubcfi(/6/2!/4/2/1:20)';
+    mocks.readThroughCfi = undefined;
     mocks.aiSettings = {
       ...mocks.aiSettings,
       enabled: true,
@@ -173,6 +177,51 @@ describe('XRayView', () => {
     expect(await screen.findByText('· Page 8')).toBeTruthy();
     expect(mocks.getCFIProgress).toHaveBeenCalledWith('epubcfi(/6/2!/4/2/1:0)');
     expect(screen.queryByText('· Position 1')).toBeNull();
+  });
+
+  it('bounds the snapshot by the furthest position read, not the page shown', async () => {
+    mocks.readThroughCfi = 'epubcfi(/6/2!/4/2/1:80)';
+    render(<XRayView bookKey='booka-view' />);
+
+    expect(await screen.findByText('Alice')).toBeTruthy();
+    expect(mocks.getSnapshot).toHaveBeenCalledWith('booka', 'epubcfi(/6/2!/4/2/1:80)');
+    expect(mocks.getSnapshot).not.toHaveBeenCalledWith('booka', mocks.currentCfi);
+  });
+
+  it('jumps to the quote itself, not the start of its chunk', async () => {
+    const doc = document.implementation.createHTMLDocument();
+    doc.body.innerHTML = '<p>The tram stopped. Alice arrived. Nobody moved.</p>';
+    const quotes = new Map<string, string>();
+    const getCFI = (_index: number, range: Range) => {
+      const cfi = CFI.joinIndir('epubcfi(/6/2)', CFI.fromRange(range));
+      quotes.set(cfi, range.toString());
+      return cfi;
+    };
+    mocks.getView.mockReturnValue({
+      goTo: mocks.goTo,
+      getCFIProgress: mocks.getCFIProgress,
+      getCFI,
+      book: { sections: [{ createDocument: async () => doc }] },
+    });
+    const snapshot = await mocks.getSnapshot();
+    snapshot.entities[0].evidence = [
+      {
+        unitId: 'chunk-0',
+        exactQuote: 'Alice arrived.',
+        sectionIndex: 0,
+        positionIndex: 0,
+        startCfi: 'epubcfi(/6/2!/4/2/1:0)',
+        endCfi: 'epubcfi(/6/2!/4/2/1:47)',
+        confidence: 1,
+        inferred: false,
+      },
+    ];
+    render(<XRayView bookKey='booka-view' />);
+
+    fireEvent.click(await screen.findByTitle('Jump to quote'));
+
+    await waitFor(() => expect(mocks.goTo).toHaveBeenCalledOnce());
+    expect(quotes.get(mocks.goTo.mock.calls[0]![0])).toBe('Alice arrived.');
   });
 
   it('keeps the bounded entity explorer open while reading forward', async () => {

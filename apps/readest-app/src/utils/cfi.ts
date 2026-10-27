@@ -171,3 +171,10 @@ export function getCfiSpinePrefix(cfi: string | null | undefined): string | null
   const bang = inner.indexOf('!');
   return bang === -1 ? inner : inner.slice(0, bang);
 }
+
+/** The later of two CFIs in reading order; a missing one loses. */
+export function laterCfi(a: string | undefined, b: string | undefined): string | undefined {
+  if (!a) return b;
+  if (!b) return a;
+  return CFI.compare(b, a) > 0 ? b : a;
+}

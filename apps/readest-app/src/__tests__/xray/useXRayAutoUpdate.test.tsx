@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   aiSettings: { enabled: true, provider: 'ollama', reedy: { enabled: true } },
   updateForProgress: vi.fn<(update: XRayProgressUpdate) => Promise<XRayProgressUpdateResult>>(),
   dispatch: vi.fn(),
+  readThroughCfi: undefined as string | undefined,
 }));
 
 vi.mock('@/context/EnvContext', () => ({
@@ -23,7 +24,14 @@ vi.mock('@/services/ai/xray/XRayService', () => ({
 
 vi.mock('@/store/bookDataStore', () => ({
   useBookDataStore: (selector: (state: unknown) => unknown) =>
-    selector({ booksData: { booka: { bookDoc: { metadata: { title: 'Book A' } } } } }),
+    selector({
+      booksData: {
+        booka: {
+          bookDoc: { metadata: { title: 'Book A' } },
+          config: { xrayReadThroughCfi: mocks.readThroughCfi },
+        },
+      },
+    }),
 }));
 
 vi.mock('@/store/readerProgressStore', () => ({
@@ -46,6 +54,7 @@ vi.mock('@/utils/event', () => ({
 
 describe('useXRayAutoUpdate', () => {
   beforeEach(() => {
+    mocks.dispatch.mockClear();
     useSidebarStore.getState().setSideBarBookKey('booka-view');
     useNotebookStore.getState().setNotebookActiveTab('xray');
     useNotebookStore.getState().setNotebookVisible(true);
@@ -54,6 +63,29 @@ describe('useXRayAutoUpdate', () => {
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+    mocks.readThroughCfi = undefined;
+  });
+
+  it('schedules the furthest position read, not the page shown', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mocks.readThroughCfi = 'epubcfi(/6/4!/4/2/1:0)';
+    mocks.updateForProgress.mockResolvedValue({
+      kind: 'current',
+      batchCount: 0,
+      unitCount: 0,
+      maxPositionIndex: 3,
+    });
+    renderHook(() => useXRayAutoUpdate('booka-view'));
+
+    await vi.advanceTimersByTimeAsync(3_000);
+    await waitFor(() => expect(mocks.updateForProgress).toHaveBeenCalled());
+    expect(mocks.updateForProgress.mock.calls[0]![0].currentCfi).toBe('epubcfi(/6/4!/4/2/1:0)');
+    await waitFor(() =>
+      expect(mocks.dispatch).toHaveBeenCalledWith('xray-progress', {
+        bookHash: 'booka',
+        progress: null,
+      }),
+    );
   });
 
   it.each([

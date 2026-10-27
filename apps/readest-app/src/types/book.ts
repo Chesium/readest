@@ -707,6 +707,11 @@ export interface BookConfig {
    * like widePages: it depends on this screen's zoom and size.
    */
   panX?: number;
+  /**
+   * The furthest location read, X-Ray's spoiler bound, so going back to a quote
+   * doesn't hide what was already read. Device-local: neither sync carries it.
+   */
+  xrayReadThroughCfi?: string;
 
   lastSyncedAtConfig?: number;
   lastSyncedAtNotes?: number;

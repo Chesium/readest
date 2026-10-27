@@ -521,3 +521,49 @@ describe('areBooksOpen', () => {
     expect(useReaderStore.getState().areBooksOpen([])).toBe(false);
   });
 });
+
+describe('X-Ray read-through position', () => {
+  const key = 'xray-view';
+  const later = 'epubcfi(/6/2!/4/2/1:80)';
+  const earlier = 'epubcfi(/6/2!/4/2/1:20)';
+  const info = { current: 0, next: 1, total: 10 };
+  const turnTo = (location: string) =>
+    useReaderStore
+      .getState()
+      .setProgress(
+        key,
+        location,
+        { id: 0, label: '', href: '', index: 0 },
+        null,
+        info,
+        info,
+        { section: 0, total: 0 },
+        document.createRange(),
+        0.1,
+      );
+  const config = () => useBookDataStore.getState().booksData['xray']?.config;
+
+  beforeEach(() => {
+    useBookDataStore.setState({
+      booksData: { xray: { id: 'xray', config: { updatedAt: 0, location: later } } as BookData },
+    });
+  });
+
+  test('keeps the furthest read CFI in the persisted config when browsing backwards', () => {
+    seedViewState(key);
+    turnTo(earlier);
+    expect(config()).toMatchObject({ location: earlier, xrayReadThroughCfi: later });
+
+    turnTo('epubcfi(/6/4!/4/2/1:0)');
+    expect(config()?.xrayReadThroughCfi).toBe('epubcfi(/6/4!/4/2/1:0)');
+  });
+
+  test('does not advance it while a deep link is only previewed', () => {
+    useBookDataStore.setState({
+      booksData: { xray: { id: 'xray', config: { updatedAt: 0, location: earlier } } as BookData },
+    });
+    seedViewState(key, { previewMode: true });
+    turnTo(later);
+    expect(config()).toMatchObject({ location: later, xrayReadThroughCfi: earlier });
+  });
+});

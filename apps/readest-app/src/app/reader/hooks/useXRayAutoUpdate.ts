@@ -6,17 +6,17 @@ import type { XRayUpdateProgress } from '@/services/ai/xray/XRayService';
 import { XRayScheduler } from '@/services/ai/xray/XRayScheduler';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useNotebookStore } from '@/store/notebookStore';
-import { useBookProgress } from '@/store/readerProgressStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useSidebarStore } from '@/store/sidebarStore';
 import { formatTitle, getContributorNames } from '@/utils/book';
 import { eventDispatcher } from '@/utils/event';
+import { useXRayReadThroughCfi } from './useXRayReadThroughCfi';
 
 export const useXRayAutoUpdate = (bookKey: string): void => {
   const { appService } = useEnv();
   const bookHash = bookKey.split('-')[0] ?? '';
   const bookDoc = useBookDataStore((state) => state.booksData[bookHash]?.bookDoc ?? null);
-  const progress = useBookProgress(bookKey);
+  const readThroughCfi = useXRayReadThroughCfi(bookKey);
   const aiSettings = useSettingsStore((state) => state.settings.aiSettings);
   // Background updates run only while the X-Ray panel shows this book; opening it
   // re-runs the schedule effect, which catches up on what was read while closed.
@@ -75,10 +75,10 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
   }, [aiSettings, appService, isPanelOpenForBook]);
 
   useEffect(() => {
-    if (!isPanelOpenForBook || !bookHash || !bookDoc || !progress?.location) return;
+    if (!isPanelOpenForBook || !bookHash || !bookDoc || !readThroughCfi) return;
     scheduler.current?.schedule({
       bookHash,
-      currentCfi: progress.location,
+      currentCfi: readThroughCfi,
       metadata: {
         title: formatTitle(bookDoc.metadata.title),
         description: bookDoc.metadata.description,
@@ -86,5 +86,5 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
         language: bookDoc.metadata.language,
       },
     });
-  }, [aiSettings, appService, bookDoc, bookHash, isPanelOpenForBook, progress?.location]);
+  }, [aiSettings, appService, bookDoc, bookHash, isPanelOpenForBook, readThroughCfi]);
 };

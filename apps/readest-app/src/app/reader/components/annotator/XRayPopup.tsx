@@ -5,10 +5,13 @@ import React, { useEffect, useState } from 'react';
 import Popup from '@/components/Popup';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import type { XRayLookupResult } from '@/services/ai/xray/types';
+import type { XRayEvidenceLocator, XRayLookupResult } from '@/services/ai/xray/types';
+import { useBookDataStore } from '@/store/bookDataStore';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { laterCfi } from '@/utils/cfi';
 import type { Position } from '@/utils/sel';
+import { navigateToXRayEvidence } from '../../utils/xrayEvidenceNavigation';
 import XRayEvidenceLabel from '../XRayEvidenceLabel';
 
 interface XRayPopupProps {
@@ -38,6 +41,11 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
   const { appService } = useEnv();
   const aiSettings = useSettingsStore((state) => state.settings.aiSettings);
   const getView = useReaderStore((state) => state.getView);
+  // Bound the lookup by the furthest location read, not the page shown.
+  const readThroughCfi = useBookDataStore(
+    (state) => state.booksData[bookKey.split('-')[0] ?? '']?.config?.xrayReadThroughCfi,
+  );
+  const boundCfi = laterCfi(readThroughCfi, currentCfi) ?? '';
   const [result, setResult] = useState<XRayLookupResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -57,7 +65,7 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
       setLoading(false);
       return;
     }
-    if (!bookHash || !currentCfi || !term.trim()) {
+    if (!bookHash || !boundCfi || !term.trim()) {
       setLoading(false);
       setError(_('Current reading position is unavailable.'));
       return;
@@ -66,7 +74,7 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
     setLoading(true);
     void import('@/services/ai/xray/XRayService')
       .then(({ getXRayService }) => getXRayService(appService, aiSettings))
-      .then((service) => service.lookup(bookHash, currentCfi, term, language))
+      .then((service) => service.lookup(bookHash, boundCfi, term, language))
       .then((lookup) => {
         if (!cancelled) setResult(lookup);
       })
@@ -82,11 +90,10 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [_, aiSettings, appService, bookKey, currentCfi, language, term]);
+  }, [_, aiSettings, appService, bookKey, boundCfi, language, term]);
 
-  const goToEvidence = (startCfi: string | null) => {
-    if (!startCfi) return;
-    getView(bookKey)?.goTo(startCfi);
+  const goToEvidence = (evidence: XRayEvidenceLocator) => {
+    void navigateToXRayEvidence(getView(bookKey), evidence);
     onDismiss?.();
   };
 
@@ -147,7 +154,7 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
                       className='eink-bordered border-base-content/15 bg-base-200/45 hover:bg-base-200 w-full rounded-lg border p-2.5 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/15 disabled:cursor-default'
                       aria-label={evidence.inferred ? _('Inferred evidence') : _('Jump to quote')}
                       disabled={evidence.inferred || !evidence.startCfi}
-                      onClick={() => goToEvidence(evidence.startCfi)}
+                      onClick={() => goToEvidence(evidence)}
                     >
                       <span className='line-clamp-3 text-xs leading-relaxed'>
                         &ldquo;{evidence.exactQuote}&rdquo;
