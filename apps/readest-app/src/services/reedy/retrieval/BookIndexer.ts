@@ -3,6 +3,7 @@ import { ReedyDb } from '../db/ReedyDb';
 import type { ChunkRow, EmbeddingRow } from '../db/types';
 import type { EmbeddingModel } from '../models/EmbeddingModel';
 import { chunkSection, type ChunkOptions } from './CfiChunker';
+import { withIndexRunLock } from './indexRunLock';
 
 const DEFAULT_BATCH_SIZE = 16;
 
@@ -46,8 +47,10 @@ export class BookIndexer {
     // (before any await) so a second concurrent caller sees the chain even
     // if no prior run had been registered when we entered.
     const prior = this.inflight.get(bookHash);
+    // The lock also marks the run as live to other windows (and to X-Ray): an
+    // 'indexing' row whose lock nobody holds was left by a killed run.
     const promise = (prior ? prior.catch(() => undefined) : Promise.resolve()).then(() =>
-      this.runIndex(bookDoc, bookHash, model, options),
+      withIndexRunLock(bookHash, () => this.runIndex(bookDoc, bookHash, model, options)),
     );
     this.inflight.set(bookHash, promise);
     try {

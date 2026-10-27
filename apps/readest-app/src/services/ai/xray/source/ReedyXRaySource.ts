@@ -3,6 +3,7 @@ import * as CFI from 'foliate-js/epubcfi.js';
 import type { XRayBookFingerprint, XRaySourceUnit } from '@/services/ai/xray/types';
 import { ReedyDb } from '@/services/reedy/db/ReedyDb';
 import type { BookMeta } from '@/services/reedy/db/types';
+import { isIndexRunLive } from '@/services/reedy/retrieval/indexRunLock';
 import type { DatabaseRow, DatabaseService } from '@/types/database';
 import type { AppService } from '@/types/system';
 
@@ -77,7 +78,14 @@ export class ReedyXRaySource {
   async getStatus(bookHash: string): Promise<XRaySourceStatus> {
     const connection = await this.getConnection();
     if (!connection) return { kind: 'not_indexed' };
-    return this.statusFromMeta(bookHash, await connection.reedy.getBookMeta(bookHash));
+    let meta = await connection.reedy.getBookMeta(bookHash);
+    if (meta?.indexingStatus === 'indexing' && !(await isIndexRunLive(bookHash))) {
+      // Re-read in case the run ended between the two checks; a row still at
+      // 'indexing' with no live run was left by a killed run and holds no index.
+      meta = await connection.reedy.getBookMeta(bookHash);
+      if (meta?.indexingStatus === 'indexing') return { kind: 'not_indexed' };
+    }
+    return this.statusFromMeta(bookHash, meta);
   }
 
   async readThrough(bookHash: string, currentCfi: string): Promise<XRaySourceSlice> {
