@@ -136,6 +136,21 @@ describe('BookIndexer', () => {
     for (const n of calls) expect(n).toBeLessThanOrEqual(2);
   });
 
+  it('reports a writing phase while chunk rows are stored, before embedding starts', async () => {
+    const events: string[] = [];
+    const html = Array.from({ length: 5 }, (_, i) => `<p>Para ${i} text here.</p>`).join('');
+    const book = fakeBook([section('s0', html)]);
+
+    await indexer.indexBook(book, 'bk-progress', fakeModel(), {
+      chunkOptions: { maxChunkSize: 30, minChunkSize: 5, overlapSize: 0, breakSearchRange: 5 },
+      onProgress: (e) => events.push(`${e.phase} ${e.current}/${e.total}`),
+    });
+
+    const n = (await reedy.getBookMeta('bk-progress'))!.chunkCount;
+    const firstEmbedding = events.findIndex((e) => e.startsWith('embedding'));
+    expect(events.slice(0, firstEmbedding)).toContain(`writing ${n}/${n}`);
+  });
+
   it('on embed failure lands status=failed with the error message and does not throw past indexBook', async () => {
     const model: EmbeddingModel = {
       id: 'broken-model',

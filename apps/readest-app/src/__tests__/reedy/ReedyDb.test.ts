@@ -142,6 +142,38 @@ describe('ReedyDb', () => {
       expect(rows.map((r) => r.text)).toEqual(chunks.map((c) => c.text));
     });
 
+    it('insertChunks packs rows into a few multi-row INSERTs and reports each write', async () => {
+      // The FTS index commits a Tantivy segment per INSERT statement, and every
+      // commit costs more as segments pile up, so one statement per row made
+      // writing a 2,143-chunk book take minutes.
+      const chunks = Array.from({ length: 450 }, (_, i) =>
+        chunk(`m${i}`, 'bk1', i, i === 449 ? 'zebra crossing' : `filler text ${i}`),
+      );
+      const statements: string[] = [];
+      const realBatch = svc.batch.bind(svc);
+      svc.batch = async (stmts: string[]) => {
+        statements.push(...stmts);
+        return realBatch(stmts);
+      };
+      const written: number[] = [];
+      try {
+        await reedy.insertChunks(chunks, (n) => written.push(n));
+      } finally {
+        svc.batch = realBatch;
+      }
+
+      expect(statements.length).toBeLessThanOrEqual(3);
+      expect(written).toEqual([200, 400, 450]);
+      const rows = await svc.select<{ c: number }>(
+        "SELECT COUNT(*) AS c FROM reedy_book_chunks WHERE book_hash = 'bk1'",
+      );
+      expect(rows[0]!.c).toBe(450);
+      const hits = await svc.select<{ id: string }>(
+        "SELECT id FROM reedy_book_chunks WHERE fts_match(text, 'zebra') AND book_hash = 'bk1'",
+      );
+      expect(hits.map((h) => h.id)).toEqual(['m449']);
+    });
+
     it('insertEmbeddings writes vectors that round-trip via vector_extract', async () => {
       await reedy.insertChunks([chunk('c1', 'bk1', 0, 'alpha')]);
       const emb: EmbeddingRow = {

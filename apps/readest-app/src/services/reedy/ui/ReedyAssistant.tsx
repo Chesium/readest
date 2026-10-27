@@ -295,7 +295,7 @@ export function ReedyAssistant({
     try {
       await reedy.indexer.indexBook(bookDoc, bookHash, models.embedding, {
         onProgress: (e) => {
-          if (e.phase === 'embedding' && e.total > 0) {
+          if (e.phase !== 'chunking' && e.total > 0) {
             setIndexProgress({
               pct: Math.round((e.current / e.total) * 100),
               current: e.current,

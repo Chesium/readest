@@ -402,7 +402,7 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
   }
 
   const progressPercent =
-    indexProgress?.phase === 'embedding' && indexProgress.total > 0
+    indexProgress && indexProgress.phase !== 'chunking' && indexProgress.total > 0
       ? Math.round((indexProgress.current / indexProgress.total) * 100)
       : 0;
 
@@ -435,7 +435,9 @@ const LegacyAIAssistant = ({ bookKey }: AIAssistantProps) => {
           <p className='text-muted-foreground text-xs'>
             {indexProgress?.phase === 'embedding'
               ? `${indexProgress.current} / ${indexProgress.total} chunks`
-              : _('Preparing...')}
+              : indexProgress?.phase === 'indexing'
+                ? _('Building search index...')
+                : _('Preparing...')}
           </p>
         </div>
         <div className='bg-muted h-1.5 w-32 overflow-hidden rounded-full'>

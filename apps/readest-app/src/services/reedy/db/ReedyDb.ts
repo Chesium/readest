@@ -181,15 +181,26 @@ export class ReedyDb {
   // bulk writes
   // ---------------------------------------------------------------------------
 
-  async insertChunks(chunks: ChunkRow[]): Promise<void> {
-    if (chunks.length === 0) return;
-    const stmts = chunks.map(
-      (c) =>
-        `INSERT INTO reedy_book_chunks
+  /**
+   * Write chunk rows as multi-row INSERTs of {@link CHUNK_ROWS_PER_INSERT}.
+   * The FTS index commits one Tantivy segment per statement and never merges
+   * them, and each commit costs more as segments pile up, so one statement
+   * per row made a 2,143-chunk book take minutes. Each statement is its own
+   * transaction so `onProgress(rowsWritten)` can report between them.
+   */
+  async insertChunks(chunks: ChunkRow[], onProgress?: (written: number) => void): Promise<void> {
+    for (let i = 0; i < chunks.length; i += CHUNK_ROWS_PER_INSERT) {
+      const slice = chunks.slice(i, i + CHUNK_ROWS_PER_INSERT);
+      const values = slice.map(
+        (c) =>
+          `(${sqlQuote(c.id)}, ${sqlQuote(c.bookHash)}, ${c.sectionIndex}, ${sqlQuoteNullable(c.chapterTitle)}, ${sqlQuote(c.startCfi)}, ${sqlQuote(c.endCfi)}, ${c.positionIndex}, ${sqlQuote(c.text)}, ${c.tokenCount})`,
+      );
+      const stmt = `INSERT INTO reedy_book_chunks
            (id, book_hash, section_index, chapter_title, start_cfi, end_cfi, position_index, text, token_count)
-         VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.bookHash)}, ${c.sectionIndex}, ${sqlQuoteNullable(c.chapterTitle)}, ${sqlQuote(c.startCfi)}, ${sqlQuote(c.endCfi)}, ${c.positionIndex}, ${sqlQuote(c.text)}, ${c.tokenCount})`,
-    );
-    await this.enqueue(() => this.db.batch(stmts));
+         VALUES ${values.join(',\n')}`;
+      await this.enqueue(() => this.db.batch([stmt]));
+      onProgress?.(i + slice.length);
+    }
   }
 
   /**
@@ -579,6 +590,9 @@ const RRF_K = 60;
 // vector (or vice-versa) still gets a vector rank contributing to its
 // RRF score. Standard 3-5× hybrid-search rule of thumb.
 const RRF_FETCH_MULTIPLIER = 3;
+// Rows per chunk INSERT: one FTS segment each (Tantivy also commits every
+// 1,000 docs). 200 keeps a long book at ~10 segments with progress between.
+const CHUNK_ROWS_PER_INSERT = 200;
 
 function reciprocalRankFusion(
   vectorRows: ScoredChunkRowSql[],

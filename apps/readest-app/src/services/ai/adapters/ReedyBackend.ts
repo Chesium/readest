@@ -92,6 +92,7 @@ export class ReedyBackend implements RetrievalBackend {
           ? (event): void => {
               const phaseMap: Record<typeof event.phase, EmbeddingProgress['phase']> = {
                 chunking: 'chunking',
+                writing: 'indexing',
                 embedding: 'embedding',
               };
               options.onProgress?.({
