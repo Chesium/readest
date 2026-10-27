@@ -24,6 +24,9 @@ export class XRayModelExtractor implements XRayExtractionModel {
         name: 'xray_extraction',
         description: 'Spoiler-bounded entities, relationships, events, and claims',
       }),
+      // OpenAI's strict mode requires every property to be required; the
+      // schema has optional fields, so ask for a non-strict json_schema.
+      providerOptions: { openaiCompatible: { strictJsonSchema: false } },
       temperature: 0,
       abortSignal: request.signal,
     });

@@ -56,6 +56,10 @@ export class OpenRouterProvider implements AIProvider {
       // fetch so streaming responses bypass the renderer's CORS sandbox
       // when running inside Tauri.
       fetch: this.httpFetch,
+      // Send `Output.object` schemas as `response_format: json_schema`.
+      // Without this the SDK drops the schema and asks for bare
+      // `json_object`, so X-Ray extraction gets unparseable output.
+      supportsStructuredOutputs: true,
     });
     aiLogger.provider.init('openrouter', settings.openrouterModel || DEFAULT_MODEL);
   }
