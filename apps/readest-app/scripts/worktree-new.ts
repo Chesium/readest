@@ -9,8 +9,15 @@ const SKIPPED_SUBMODULES = [
 ];
 
 const arg = process.argv[2];
-if (!arg) {
-  console.error('Usage: pnpm worktree:new <branch-name|pr-number>');
+if (!arg || arg.startsWith('--')) {
+  console.error('Usage: pnpm worktree:new <branch-name|pr-number> [--base <ref>]');
+  process.exit(1);
+}
+// A new branch starts from, and every worktree is rebased onto, this ref.
+const baseIndex = process.argv.indexOf('--base');
+const base = baseIndex > 0 ? process.argv[baseIndex + 1] : 'origin/main';
+if (!base) {
+  console.error('--base needs a ref');
   process.exit(1);
 }
 
@@ -123,16 +130,16 @@ if (/^\d+$/.test(arg)) {
       cwd: repoRoot,
     });
   } else {
-    execSync(`git worktree add -b "${localBranch}" "${worktreePath}" origin/main`, {
+    execSync(`git worktree add -b "${localBranch}" "${worktreePath}" "${base}"`, {
       stdio: gitStdio,
       cwd: repoRoot,
     });
   }
 }
 
-// Rebase onto origin/main so the worktree starts from the latest upstream
-console.error('\n--- Rebasing onto origin/main ---');
-execSync('git rebase origin/main', { stdio: gitStdio, cwd: worktreePath });
+// Rebase onto the base so the worktree starts from its latest commit
+console.error(`\n--- Rebasing onto ${base} ---`);
+execSync(`git rebase "${base}"`, { stdio: gitStdio, cwd: worktreePath });
 
 // Repoint submodule URLs to local .git/modules/ clones to avoid remote fetches.
 // Submodules without a local cache fall back to the remote URL.
@@ -229,11 +236,16 @@ const androidGenDir = path.join(genDir, 'android');
 if (fs.existsSync(androidGenDir)) {
   console.error('\n--- Initializing Tauri Android ---');
   fs.rmSync(androidGenDir, { recursive: true });
-  execSync('pnpm tauri android init', { stdio: gitStdio, cwd: dstAppDir });
-  execSync('pnpm tauri icon ../../data/icons/readest-book.png', {
-    stdio: gitStdio,
-    cwd: dstAppDir,
-  });
+  try {
+    execSync('pnpm tauri android init', { stdio: gitStdio, cwd: dstAppDir });
+    execSync('pnpm tauri icon ../../data/icons/readest-book.png', {
+      stdio: gitStdio,
+      cwd: dstAppDir,
+    });
+  } catch {
+    // No Android SDK here: keep the committed gen/android and set up the rest.
+    console.error('  Android init failed; restoring the committed gen/android');
+  }
   execSync(`git checkout ${appRelPath}/src-tauri/gen/android ${appRelPath}/src-tauri/icons`, {
     stdio: gitStdio,
     cwd: worktreePath,
