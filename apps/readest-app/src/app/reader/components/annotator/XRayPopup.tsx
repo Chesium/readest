@@ -9,6 +9,7 @@ import type { XRayLookupResult } from '@/services/ai/xray/types';
 import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import type { Position } from '@/utils/sel';
+import XRayEvidenceLabel from '../XRayEvidenceLabel';
 
 interface XRayPopupProps {
   term: string;
@@ -152,11 +153,7 @@ const XRayPopup: React.FC<XRayPopupProps> = ({
                         &ldquo;{evidence.exactQuote}&rdquo;
                       </span>
                       <span className='text-base-content/50 mt-1.5 block text-[10px]'>
-                        {evidence.displayPage === undefined
-                          ? _('Position {{position}}', {
-                              position: evidence.positionIndex + 1,
-                            })
-                          : _('Page {{page}}', { page: evidence.displayPage })}
+                        <XRayEvidenceLabel bookKey={bookKey} evidence={evidence} />
                         {evidence.inferred ? ` · ${_('Inferred')}` : ''}
                       </span>
                     </button>

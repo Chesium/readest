@@ -32,6 +32,7 @@ import { useReaderStore } from '@/store/readerStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { formatTitle, getContributorNames } from '@/utils/book';
 import { eventDispatcher } from '@/utils/event';
+import XRayEvidenceLabel from '../XRayEvidenceLabel';
 
 interface XRayViewProps {
   bookKey: string;
@@ -382,6 +383,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
               filteredEntities.map((entity) => (
                 <EntityCard
                   key={`${entity.type}:${entity.name}`}
+                  bookKey={bookKey}
                   entity={entity}
                   onNavigate={navigateToEvidence}
                   translate={_}
@@ -407,6 +409,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
                     {_('Importance {{importance}} of 10', { importance: event.importance })}
                   </p>
                   <EvidenceList
+                    bookKey={bookKey}
                     evidence={event.evidence}
                     onNavigate={navigateToEvidence}
                     translate={_}
@@ -446,6 +449,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
                     </p>
                   ) : null}
                   <EvidenceList
+                    bookKey={bookKey}
                     evidence={relationship.evidence}
                     onNavigate={navigateToEvidence}
                     translate={_}
@@ -478,6 +482,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
                   </div>
                   <p className='mt-2 text-sm leading-relaxed'>{claim.description}</p>
                   <EvidenceList
+                    bookKey={bookKey}
                     evidence={claim.evidence}
                     onNavigate={navigateToEvidence}
                     translate={_}
@@ -495,10 +500,12 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
 };
 
 const EntityCard = ({
+  bookKey,
   entity,
   onNavigate,
   translate: _,
 }: {
+  bookKey: string;
   entity: XRayEntity;
   onNavigate: (evidence: XRayEvidenceLocator) => void;
   translate: ReturnType<typeof useTranslation>;
@@ -537,21 +544,33 @@ const EntityCard = ({
                 {fact.key}
               </dt>
               <dd className='mt-0.5 text-xs leading-relaxed'>{fact.value}</dd>
-              <EvidenceList evidence={fact.evidence} onNavigate={onNavigate} translate={_} />
+              <EvidenceList
+                bookKey={bookKey}
+                evidence={fact.evidence}
+                onNavigate={onNavigate}
+                translate={_}
+              />
             </div>
           ))}
         </dl>
       ) : null}
-      <EvidenceList evidence={entity.evidence} onNavigate={onNavigate} translate={_} />
+      <EvidenceList
+        bookKey={bookKey}
+        evidence={entity.evidence}
+        onNavigate={onNavigate}
+        translate={_}
+      />
     </div>
   </details>
 );
 
 const EvidenceList = ({
+  bookKey,
   evidence,
   onNavigate,
   translate: _,
 }: {
+  bookKey: string;
   evidence: readonly XRayEvidenceLocator[];
   onNavigate: (item: XRayEvidenceLocator) => void;
   translate: ReturnType<typeof useTranslation>;
@@ -559,17 +578,14 @@ const EvidenceList = ({
   if (!evidence.length) return null;
   return (
     <div className='mt-3 space-y-1.5'>
-      {evidence.slice(-3).map((item) => {
-        const label =
-          item.displayPage === undefined
-            ? _('Position {{position}}', { position: item.positionIndex + 1 })
-            : _('Page {{page}}', { page: item.displayPage });
-        return item.inferred ? (
+      {evidence.slice(-3).map((item) =>
+        item.inferred ? (
           <div
             key={`${item.unitId}:${item.exactQuote}`}
             className='text-base-content/55 text-[11px]'
           >
-            &ldquo;{item.exactQuote}&rdquo; · {label} · {_('Inferred')}
+            &ldquo;{item.exactQuote}&rdquo; ·{' '}
+            <XRayEvidenceLabel bookKey={bookKey} evidence={item} /> · {_('Inferred')}
           </div>
         ) : (
           <button
@@ -580,10 +596,12 @@ const EvidenceList = ({
             title={_('Jump to quote')}
           >
             <span className='text-base-content/75'>&ldquo;{item.exactQuote}&rdquo;</span>{' '}
-            <span className='text-base-content/45'>· {label}</span>
+            <span className='text-base-content/45'>
+              · <XRayEvidenceLabel bookKey={bookKey} evidence={item} />
+            </span>
           </button>
-        );
-      })}
+        ),
+      )}
     </div>
   );
 };

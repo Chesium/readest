@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   },
   appService: { appPlatform: 'tauri' },
   goTo: vi.fn(),
+  getView: vi.fn(),
+  getCFIProgress: vi.fn(),
   lookup: vi.fn(),
   translate: (value: string, options: Record<string, string | number> = {}) =>
     value.replace(/\{\{(\w+)\}\}/g, (_match, key: string) => String(options[key] ?? key)),
@@ -35,8 +37,7 @@ vi.mock('@/services/ai/xray/XRayService', () => ({
 }));
 
 vi.mock('@/store/readerStore', () => ({
-  useReaderStore: (selector: (state: unknown) => unknown) =>
-    selector({ getView: () => ({ goTo: mocks.goTo }) }),
+  useReaderStore: (selector: (state: unknown) => unknown) => selector({ getView: mocks.getView }),
 }));
 
 vi.mock('@/store/settingsStore', () => ({
@@ -55,6 +56,8 @@ describe('XRayPopup', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getView.mockReturnValue({ goTo: mocks.goTo, getCFIProgress: mocks.getCFIProgress });
+    mocks.getCFIProgress.mockResolvedValue({ location: { current: 7, total: 20 } });
     mocks.lookup.mockResolvedValue({
       term: 'Alice',
       summary: 'A curious girl who follows the White Rabbit.',
@@ -102,10 +105,41 @@ describe('XRayPopup', () => {
     expect(await screen.findByText('A curious girl who follows the White Rabbit.')).toBeTruthy();
     expect(mocks.lookup).toHaveBeenCalledWith('booka', 'epubcfi(/6/4!/4/2/1:20)', 'Alice', 'en');
 
+    expect(await screen.findByText('Page 8')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Jump to quote' }));
 
     expect(mocks.goTo).toHaveBeenCalledWith('epubcfi(/6/2!/4/2/1:0)');
     expect(onDismiss).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { progress: null, fixed: false, label: 'Position 1' },
+    {
+      progress: { location: { current: 7, total: 20 }, section: { current: 3, total: 10 } },
+      fixed: true,
+      label: 'Page 4',
+    },
+    { progress: { location: { current: 20, total: 20 } }, fixed: false, label: 'Page 20' },
+  ])('shows $label from the available reader progress', async ({ progress, fixed, label }) => {
+    mocks.getCFIProgress.mockResolvedValue(progress);
+    mocks.getView.mockReturnValue({
+      goTo: mocks.goTo,
+      getCFIProgress: mocks.getCFIProgress,
+      isFixedLayout: fixed,
+    });
+    render(
+      <XRayPopup
+        term='Alice'
+        bookKey='booka-view'
+        currentCfi='epubcfi(/6/4!/4/2/1:20)'
+        language='en'
+        position={popupPosition}
+        trianglePosition={popupPosition}
+        popupWidth={360}
+        popupHeight={260}
+      />,
+    );
+    expect(await screen.findByText(label)).toBeTruthy();
   });
 
   it('shows an empty bounded result without inventing details', async () => {

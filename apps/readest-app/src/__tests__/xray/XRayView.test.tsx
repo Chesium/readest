@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   getStatus: vi.fn(),
   updateForProgress: vi.fn<(update: XRayProgressUpdate) => Promise<XRayProgressUpdateResult>>(),
   goTo: vi.fn(),
+  getView: vi.fn(),
+  getCFIProgress: vi.fn(),
   currentCfi: 'epubcfi(/6/2!/4/2/1:20)',
   appService: { appPlatform: 'tauri' },
   aiSettings: {
@@ -62,8 +64,7 @@ vi.mock('@/store/readerProgressStore', () => ({
 }));
 
 vi.mock('@/store/readerStore', () => ({
-  useReaderStore: (selector: (state: unknown) => unknown) =>
-    selector({ getView: () => ({ goTo: mocks.goTo }) }),
+  useReaderStore: (selector: (state: unknown) => unknown) => selector({ getView: mocks.getView }),
 }));
 
 vi.mock('@/store/settingsStore', () => ({
@@ -119,6 +120,8 @@ describe('XRayView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getView.mockReturnValue({ goTo: mocks.goTo, getCFIProgress: mocks.getCFIProgress });
+    mocks.getCFIProgress.mockResolvedValue(null);
     mocks.currentCfi = 'epubcfi(/6/2!/4/2/1:20)';
     mocks.aiSettings = {
       ...mocks.aiSettings,
@@ -149,6 +152,27 @@ describe('XRayView', () => {
       maxPositionIndex: 1,
       updatedAt: 1_000,
     });
+  });
+
+  it('labels evidence with the reader page instead of the chunk position', async () => {
+    mocks.getCFIProgress.mockResolvedValue({ location: { current: 7, total: 20 } });
+    const snapshot = await mocks.getSnapshot();
+    snapshot.entities[0].evidence = [
+      {
+        unitId: 'chunk-0',
+        exactQuote: 'Alice arrived.',
+        sectionIndex: 0,
+        positionIndex: 0,
+        startCfi: 'epubcfi(/6/2!/4/2/1:0)',
+        endCfi: 'epubcfi(/6/2!/4/2/1:10)',
+        confidence: 1,
+        inferred: false,
+      },
+    ];
+    render(<XRayView bookKey='booka-view' />);
+    expect(await screen.findByText('· Page 8')).toBeTruthy();
+    expect(mocks.getCFIProgress).toHaveBeenCalledWith('epubcfi(/6/2!/4/2/1:0)');
+    expect(screen.queryByText('· Position 1')).toBeNull();
   });
 
   it('keeps the bounded entity explorer open while reading forward', async () => {
