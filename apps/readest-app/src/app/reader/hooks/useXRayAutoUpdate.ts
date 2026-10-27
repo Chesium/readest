@@ -4,8 +4,10 @@ import { useEnv } from '@/context/EnvContext';
 import { hasXRayCredentials as hasCredentials } from '@/services/ai/xray/utils';
 import { XRayScheduler } from '@/services/ai/xray/XRayScheduler';
 import { useBookDataStore } from '@/store/bookDataStore';
+import { useNotebookStore } from '@/store/notebookStore';
 import { useBookProgress } from '@/store/readerProgressStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useSidebarStore } from '@/store/sidebarStore';
 import { formatTitle, getContributorNames } from '@/utils/book';
 import { eventDispatcher } from '@/utils/event';
 
@@ -15,10 +17,18 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
   const bookDoc = useBookDataStore((state) => state.booksData[bookHash]?.bookDoc ?? null);
   const progress = useBookProgress(bookKey);
   const aiSettings = useSettingsStore((state) => state.settings.aiSettings);
+  // Background updates run only while the X-Ray panel shows this book; opening it
+  // re-runs the schedule effect, which catches up on what was read while closed.
+  const isPanelOpen = useNotebookStore(
+    (state) => state.isNotebookVisible && state.notebookActiveTab === 'xray',
+  );
+  const isPanelBook = useSidebarStore((state) => state.sideBarBookKey === bookKey);
+  const isPanelOpenForBook = isPanelOpen && isPanelBook;
   const scheduler = useRef<XRayScheduler | null>(null);
 
   useEffect(() => {
     if (
+      !isPanelOpenForBook ||
       !appService ||
       appService.appPlatform !== 'tauri' ||
       !aiSettings?.enabled ||
@@ -53,10 +63,10 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
       if (scheduler.current === nextScheduler) scheduler.current = null;
       nextScheduler.dispose();
     };
-  }, [aiSettings, appService]);
+  }, [aiSettings, appService, isPanelOpenForBook]);
 
   useEffect(() => {
-    if (!bookHash || !bookDoc || !progress?.location) return;
+    if (!isPanelOpenForBook || !bookHash || !bookDoc || !progress?.location) return;
     scheduler.current?.schedule({
       bookHash,
       currentCfi: progress.location,
@@ -66,5 +76,5 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
         subject: getContributorNames(bookDoc.metadata.subject),
       },
     });
-  }, [aiSettings, appService, bookDoc, bookHash, progress?.location]);
+  }, [aiSettings, appService, bookDoc, bookHash, isPanelOpenForBook, progress?.location]);
 };
