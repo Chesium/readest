@@ -1,6 +1,8 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import { BookCitationProvider } from '@/components/assistant/BookCitations';
+import type { SourceItem } from '@/services/ai/adapters/reedySourceStore';
 import type { ReedyMessage, ReedyMessagePart } from '../store/reedyStore';
 import { AssistantTextPart, UserTextPart } from './parts/TextPart';
 import { ToolCallPart } from './parts/ToolCallPart';
@@ -23,6 +25,25 @@ export const MessageCard = memo(function MessageCard({
   message: ReedyMessage;
   onSourceClick?: (cfi: string) => void;
 }) {
+  const sources = useMemo(
+    (): SourceItem[] =>
+      message.role === 'assistant'
+        ? message.parts.flatMap((part) =>
+            part.type === 'citation'
+              ? [
+                  {
+                    id: part.cfi,
+                    cfi: part.cfi,
+                    text: part.snippet,
+                    sectionIndex: part.sectionIndex,
+                    chapterTitle: part.chapterTitle ?? null,
+                  },
+                ]
+              : [],
+          )
+        : [],
+    [message],
+  );
   if (message.role === 'user') {
     return (
       <div className='animate-in fade-in mx-auto mb-3 flex w-full justify-end duration-200'>
@@ -36,9 +57,14 @@ export const MessageCard = memo(function MessageCard({
   return (
     <div className='animate-in fade-in mb-4 flex w-full duration-200'>
       <div className='flex w-full min-w-0 flex-col gap-1'>
-        {message.parts.map((part, i) => (
-          <PartDispatcher key={partKey(part, i)} part={part} onSourceClick={onSourceClick} />
-        ))}
+        <BookCitationProvider
+          sources={sources}
+          onSourceClick={(source) => source.cfi && onSourceClick?.(source.cfi)}
+        >
+          {message.parts.map((part, i) => (
+            <PartDispatcher key={partKey(part, i)} part={part} onSourceClick={onSourceClick} />
+          ))}
+        </BookCitationProvider>
         {message.finishReason === 'error' && message.parts.every((p) => p.type !== 'error') && (
           <ErrorPart part={{ type: 'error', kind: 'unknown', message: 'Turn ended in error.' }} />
         )}

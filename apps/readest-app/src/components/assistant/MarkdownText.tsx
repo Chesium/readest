@@ -8,17 +8,18 @@ import {
   unstable_memoizeMarkdownComponents as memoizeMarkdownComponents,
   useIsMarkdownCodeBlock,
 } from '@assistant-ui/react-markdown';
-import remarkGfm from 'remark-gfm';
 import { type FC, memo, useState } from 'react';
 import { CheckIcon, CopyIcon } from 'lucide-react';
 
 import { TooltipIconButton } from './TooltipIconButton';
+import { BookCitationLink, useBookCitationPlugins } from './BookCitations';
 import { cn } from '@/utils/tailwind';
 
 const MarkdownTextImpl = () => {
+  const remarkPlugins = useBookCitationPlugins();
   return (
     <MarkdownTextPrimitive
-      remarkPlugins={[remarkGfm]}
+      remarkPlugins={remarkPlugins}
       className='aui-md'
       components={defaultComponents}
     />
@@ -93,7 +94,7 @@ const defaultComponents = memoizeMarkdownComponents({
   ),
   a: ({ className, ...props }) => (
     // eslint-disable-next-line jsx-a11y/anchor-has-content
-    <a
+    <BookCitationLink
       className={cn('text-primary font-medium underline underline-offset-4', className)}
       {...props}
     />

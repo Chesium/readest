@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/utils/tailwind';
+import { BookCitationProvider } from './BookCitations';
 import type { SourceItem } from '@/services/ai/adapters/reedySourceStore';
 
 interface ThreadProps {
@@ -295,7 +296,9 @@ const AssistantMessage: FC<AssistantMessageProps> = ({ sources = [], onSourceCli
       <div className='flex flex-col items-start'>
         <div className='w-full max-w-none'>
           <div className='prose prose-xs text-base-content [&_*]:text-base-content! [&_a]:text-primary! [&_code]:text-base-content! select-text text-sm'>
-            <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            <BookCitationProvider sources={sources} onSourceClick={onSourceClick}>
+              <MessagePrimitive.Parts components={{ Text: MarkdownText }} />
+            </BookCitationProvider>
           </div>
         </div>
 

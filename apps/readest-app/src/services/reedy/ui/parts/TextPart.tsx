@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { BookCitationLink, useBookCitationPlugins } from '@/components/assistant/BookCitations';
 
 /**
  * User-message text rendering. Bare react-markdown with GFM but no
@@ -56,15 +57,16 @@ export const UserTextPart = memo(function UserTextPart({ text }: { text: string 
  * the text grows monotonically per assistant message.
  */
 export const AssistantTextPart = memo(function AssistantTextPart({ text }: { text: string }) {
+  const remarkPlugins = useBookCitationPlugins();
   return (
     <div className='prose prose-sm dark:prose-invert max-w-none break-words'>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={remarkPlugins}
         components={{
           a: ({ href, children }) => (
-            <a href={href} target='_blank' rel='noopener noreferrer'>
+            <BookCitationLink href={href} target='_blank' rel='noopener noreferrer'>
               {children}
-            </a>
+            </BookCitationLink>
           ),
           code: ({ children, className }) => {
             // Inline code: no className. Fenced blocks: get a language-x class.
