@@ -140,6 +140,90 @@ describe('XRaySnapshotService', () => {
     expect(secondSnapshot.entities[0]!.facts).toHaveLength(2);
   });
 
+  it('merges links whose endpoints name the same entities by name or alias', async () => {
+    const firstUnit = unit(0, '吕宗桢看着吴翠远。');
+    const secondUnit = unit(1, '宗桢对翠远说话。');
+    const evidenceAt = (sourceUnit: XRaySourceUnit, exactQuote: string) => ({
+      unitId: sourceUnit.unitId,
+      exactQuote,
+      startCfi: sourceUnit.startCfi,
+      endCfi: sourceUnit.endCfi,
+      sectionIndex: sourceUnit.sectionIndex,
+      positionIndex: sourceUnit.positionIndex,
+      confidence: 1,
+      inferred: false as const,
+    });
+    const person = (sourceUnit: XRaySourceUnit, name: string, aliases: string[]): XRayEntity => ({
+      name,
+      type: 'character',
+      aliases,
+      description: '',
+      evidence: [evidenceAt(sourceUnit, name)],
+      facts: [],
+    });
+    const linkBatch = (
+      sourceUnit: XRaySourceUnit,
+      entities: XRayEntity[],
+      source: string,
+      target: string,
+      description: string,
+    ): XRayExtractionBatch => ({
+      ...batch(sourceUnit, entities[0]!),
+      output: {
+        entities,
+        relationships: [
+          {
+            source,
+            target,
+            type: 'flirtation',
+            description,
+            evidence: [evidenceAt(sourceUnit, sourceUnit.text)],
+          },
+        ],
+        events: [],
+        claims: [],
+      },
+    });
+    const state = { fingerprint, lastBatchId: 'batch-1', updatedAt: 1_001, version: 1 };
+    await store.commitBatch(
+      linkBatch(
+        firstUnit,
+        [person(firstUnit, '吕宗桢', ['宗桢']), person(firstUnit, '吴翠远', ['翠远'])],
+        '吕宗桢',
+        '吴翠远',
+        '假装调情',
+      ),
+      { ...state, maxPositionIndex: 0 },
+    );
+    await store.commitBatch(
+      linkBatch(
+        secondUnit,
+        [person(secondUnit, '宗桢', []), person(secondUnit, '翠远', [])],
+        '宗桢',
+        '翠远',
+        '宗桢搭讪翠远，假装调情',
+      ),
+      { ...state, maxPositionIndex: 1 },
+    );
+    const service = new XRaySnapshotService(
+      { readThrough: vi.fn().mockResolvedValue(sourceSlice([firstUnit, secondUnit])) },
+      store,
+    );
+
+    const snapshot = await service.getSnapshot(BOOK_HASH, 'at-second');
+
+    expect(snapshot.entities.map((item) => item.name)).toEqual(['吕宗桢', '吴翠远']);
+    expect(snapshot.relationships).toEqual([
+      {
+        source: '吕宗桢',
+        target: '吴翠远',
+        type: 'flirtation',
+        description: '宗桢搭讪翠远，假装调情',
+        evidence: [evidenceAt(firstUnit, firstUnit.text), evidenceAt(secondUnit, secondUnit.text)],
+      },
+    ]);
+  });
+
   it('uses the highest batch bound when stored ranges overlap', async () => {
     const firstUnit = unit(0, 'Alice arrived at the station.');
     const laterUnit = unit(5, 'Alice began the investigation.');

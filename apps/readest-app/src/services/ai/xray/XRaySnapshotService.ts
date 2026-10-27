@@ -84,11 +84,20 @@ const mergeBatches = (
 
   for (const batch of batches) {
     for (const incoming of batch.output.entities) mergeEntity(entities, incoming);
-    for (const incoming of batch.output.relationships) {
-      mergeRelationship(relationships, incoming);
-    }
     for (const incoming of batch.output.events) mergeEvent(events, incoming);
     for (const incoming of batch.output.claims) mergeClaim(claims, incoming);
+  }
+  // Batches name the same entity differently; link endpoints use the merged entity's name.
+  const canonical = canonicalNames(entities);
+  const canonicalName = (name: string): string => canonical.get(normalize(name)) ?? name;
+  for (const batch of batches) {
+    for (const incoming of batch.output.relationships) {
+      mergeRelationship(relationships, {
+        ...incoming,
+        source: canonicalName(incoming.source),
+        target: canonicalName(incoming.target),
+      });
+    }
   }
 
   const byEvidencePosition = (
@@ -144,6 +153,18 @@ const mergeEntity = (entities: XRayEntity[], incoming: XRayEntity): void => {
     evidence: mergeEvidence(current.evidence, incoming.evidence),
     facts: mergeFacts(current.facts, incoming.facts),
   };
+};
+
+// Entity names win over aliases, so a name that is another entity's alias still maps to itself.
+const canonicalNames = (entities: readonly XRayEntity[]): Map<string, string> => {
+  const names = new Map<string, string>();
+  for (const entity of entities) names.set(normalize(entity.name), entity.name);
+  for (const entity of entities) {
+    for (const alias of entity.aliases) {
+      if (!names.has(normalize(alias))) names.set(normalize(alias), entity.name);
+    }
+  }
+  return names;
 };
 
 const copyEntity = (entity: XRayEntity): XRayEntity => ({
