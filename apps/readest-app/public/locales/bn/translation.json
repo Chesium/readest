@@ -2676,5 +2676,6 @@
   "Pack": "প্যাক",
   "Failed to create pack": "প্যাক তৈরি করা যায়নি",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "সংগ্রহ \"{{name}}\" পুনরুদ্ধার করা হয়েছে ({{count}}টি বই)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "সংগ্রহ \"{{name}}\" পুনরুদ্ধার করা হয়েছে ({{count}}টি বই)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "সংগ্রহ \"{{name}}\" পুনরুদ্ধার করা হয়েছে ({{count}}টি বই)",
+  "Updating {{completed}} / {{total}}": "হালনাগাদ হচ্ছে {{completed}} / {{total}}"
 }

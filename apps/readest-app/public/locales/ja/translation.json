@@ -2608,5 +2608,6 @@
   "Failed to export package": "パッケージのエクスポートに失敗しました",
   "Pack": "パック",
   "Failed to create pack": "パックの作成に失敗しました",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "グループ「{{name}}」を復元しました（{{count}} 冊）"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "グループ「{{name}}」を復元しました（{{count}} 冊）",
+  "Updating {{completed}} / {{total}}": "更新中 {{completed}} / {{total}}"
 }

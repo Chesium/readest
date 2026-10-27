@@ -2676,5 +2676,6 @@
   "Pack": "Inpakken",
   "Failed to create pack": "Pakket maken mislukt",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Collectie \"{{name}}\" hersteld ({{count}} boek)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Collectie \"{{name}}\" hersteld ({{count}} boeken)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Collectie \"{{name}}\" hersteld ({{count}} boeken)",
+  "Updating {{completed}} / {{total}}": "Bijwerken {{completed}} / {{total}}"
 }

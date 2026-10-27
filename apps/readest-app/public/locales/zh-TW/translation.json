@@ -2608,5 +2608,6 @@
   "Failed to export package": "匯出套件失敗",
   "Pack": "打包",
   "Failed to create pack": "建立套件失敗",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "已還原分組「{{name}}」（{{count}} 本書）"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "已還原分組「{{name}}」（{{count}} 本書）",
+  "Updating {{completed}} / {{total}}": "正在更新 {{completed}} / {{total}}"
 }

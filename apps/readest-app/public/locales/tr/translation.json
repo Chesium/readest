@@ -2683,5 +2683,6 @@
   "{{count}} book(s) omitted (file not available locally)_other": "{{count}} kitap atlandı (dosya yerel olarak mevcut değil)",
   "Failed to create pack": "Paket oluşturulamadı",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "\"{{name}}\" koleksiyonu geri yüklendi ({{count}} kitap)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "\"{{name}}\" koleksiyonu geri yüklendi ({{count}} kitap)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "\"{{name}}\" koleksiyonu geri yüklendi ({{count}} kitap)",
+  "Updating {{completed}} / {{total}}": "Güncelleniyor {{completed}} / {{total}}"
 }

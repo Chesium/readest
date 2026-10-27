@@ -2744,5 +2744,6 @@
   "Failed to create pack": "יצירת החבילה נכשלה",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "האוסף \"{{name}}\" שוחזר (ספר אחד)",
   "Restored collection \"{{name}}\" ({{count}} books)_two": "האוסף \"{{name}}\" שוחזר ({{count}} ספרים)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "האוסף \"{{name}}\" שוחזר ({{count}} ספרים)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "האוסף \"{{name}}\" שוחזר ({{count}} ספרים)",
+  "Updating {{completed}} / {{total}}": "מעדכן {{completed}} / {{total}}"
 }

@@ -2676,5 +2676,6 @@
   "Pack": "Qadoqlash",
   "Failed to create pack": "Paket yaratib bo‘lmadi",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "\"{{name}}\" to‘plami tiklandi ({{count}} ta kitob)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "\"{{name}}\" to‘plami tiklandi ({{count}} ta kitob)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "\"{{name}}\" to‘plami tiklandi ({{count}} ta kitob)",
+  "Updating {{completed}} / {{total}}": "Yangilanmoqda {{completed}} / {{total}}"
 }

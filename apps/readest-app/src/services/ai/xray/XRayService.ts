@@ -18,6 +18,12 @@ export interface XRayProgressUpdate {
   readonly currentCfi: string;
   readonly metadata?: GenreMetadata;
   readonly signal?: AbortSignal;
+  readonly onProgress?: (completedUnits: number, totalUnits: number) => void;
+}
+
+export interface XRayUpdateProgress {
+  readonly completedUnits: number;
+  readonly totalUnits: number;
 }
 
 export type XRayProgressUpdateResult =
@@ -81,6 +87,7 @@ export class XRayService {
     return this.pipeline.update(update.bookHash, update.currentCfi, {
       metadata: update.metadata,
       signal: update.signal,
+      onProgress: update.onProgress,
     });
   }
 

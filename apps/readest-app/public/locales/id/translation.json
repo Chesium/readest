@@ -2608,5 +2608,6 @@
   "Failed to export package": "Gagal mengekspor paket",
   "Pack": "Kemas",
   "Failed to create pack": "Gagal membuat paket",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Koleksi \"{{name}}\" dipulihkan ({{count}} buku)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Koleksi \"{{name}}\" dipulihkan ({{count}} buku)",
+  "Updating {{completed}} / {{total}}": "Memperbarui {{completed}} / {{total}}"
 }

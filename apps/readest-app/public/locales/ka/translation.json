@@ -2676,5 +2676,6 @@
   "Pack": "შეფუთვა",
   "Failed to create pack": "პაკეტის შექმნა ვერ მოხერხდა",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "კოლექცია „{{name}}“ აღდგენილია ({{count}} წიგნი)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "კოლექცია „{{name}}“ აღდგენილია ({{count}} წიგნი)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "კოლექცია „{{name}}“ აღდგენილია ({{count}} წიგნი)",
+  "Updating {{completed}} / {{total}}": "განახლება {{completed}} / {{total}}"
 }

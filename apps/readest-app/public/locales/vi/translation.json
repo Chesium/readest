@@ -2608,5 +2608,6 @@
   "Failed to export package": "Không thể xuất gói",
   "Pack": "Đóng gói",
   "Failed to create pack": "Không thể tạo gói",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Đã khôi phục bộ sưu tập \"{{name}}\" ({{count}} cuốn sách)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Đã khôi phục bộ sưu tập \"{{name}}\" ({{count}} cuốn sách)",
+  "Updating {{completed}} / {{total}}": "Đang cập nhật {{completed}} / {{total}}"
 }

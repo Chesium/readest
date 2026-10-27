@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useEnv } from '@/context/EnvContext';
 import { hasXRayCredentials as hasCredentials } from '@/services/ai/xray/utils';
+import type { XRayUpdateProgress } from '@/services/ai/xray/XRayService';
 import { XRayScheduler } from '@/services/ai/xray/XRayScheduler';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { useNotebookStore } from '@/store/notebookStore';
@@ -43,15 +44,23 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
       async (update, signal) => {
         const { getXRayService } = await import('@/services/ai/xray/XRayService');
         const service = await getXRayService(appService, aiSettings);
-        const result = await service.updateForProgress({
-          ...update,
-          signal,
-        });
-        if (result.kind === 'updated') {
-          void eventDispatcher.dispatch('xray-updated', {
-            bookHash: update.bookHash,
-            maxPositionIndex: result.maxPositionIndex,
+        const reportProgress = (progress: XRayUpdateProgress | null) =>
+          void eventDispatcher.dispatch('xray-progress', { bookHash: update.bookHash, progress });
+        try {
+          const result = await service.updateForProgress({
+            ...update,
+            signal,
+            onProgress: (completedUnits, totalUnits) =>
+              reportProgress({ completedUnits, totalUnits }),
           });
+          if (result.kind === 'updated') {
+            void eventDispatcher.dispatch('xray-updated', {
+              bookHash: update.bookHash,
+              maxPositionIndex: result.maxPositionIndex,
+            });
+          }
+        } finally {
+          reportProgress(null);
         }
       },
       {

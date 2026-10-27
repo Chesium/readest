@@ -18,6 +18,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { hasXRayCredentials as hasCredentials } from '@/services/ai/xray/utils';
 import type { XRaySourceStatus } from '@/services/ai/xray/source/ReedyXRaySource';
+import type { XRayUpdateProgress } from '@/services/ai/xray/XRayService';
 import type {
   XRayClaimStatus,
   XRayEntity,
@@ -54,6 +55,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
   const [snapshotCfi, setSnapshotCfi] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [updateProgress, setUpdateProgress] = useState<XRayUpdateProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
   const updateController = useRef<AbortController | null>(null);
@@ -97,6 +99,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
     setStatus(null);
     setSnapshot(null);
     setSnapshotCfi(null);
+    setUpdateProgress(null);
   }, [aiSettings, appService, bookHash]);
 
   useEffect(() => {
@@ -117,10 +120,24 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
   }, [bookHash, load]);
 
   useEffect(() => {
+    const handleProgress = (event: CustomEvent) => {
+      if (event.detail?.bookHash !== bookHash) return;
+      const progress: XRayUpdateProgress | null = event.detail.progress;
+      setUpdateProgress(progress);
+      // Each reported batch is already committed, so show it now.
+      if (progress?.completedUnits) void load();
+    };
+    eventDispatcher.on('xray-progress', handleProgress);
+    return () => eventDispatcher.off('xray-progress', handleProgress);
+  }, [bookHash, load]);
+
+  // Keyed on the status object, not its kind: every poll stores a new object,
+  // so a repeated `indexing` result re-arms the timer.
+  useEffect(() => {
     if (status?.kind !== 'indexing') return;
     const timer = setTimeout(() => void load(), 1_500);
     return () => clearTimeout(timer);
-  }, [load, status?.kind]);
+  }, [load, status]);
 
   const update = async (): Promise<void> => {
     if (
@@ -137,6 +154,8 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
     updateController.current = controller;
     setIsUpdating(true);
     setError(null);
+    const reportProgress = (progress: XRayUpdateProgress | null) =>
+      void eventDispatcher.dispatch('xray-progress', { bookHash, progress });
     try {
       const { getXRayService } = await import('@/services/ai/xray/XRayService');
       const service = await getXRayService(appService, aiSettings);
@@ -145,6 +164,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
         bookHash,
         currentCfi,
         signal: controller.signal,
+        onProgress: (completedUnits, totalUnits) => reportProgress({ completedUnits, totalUnits }),
         metadata: {
           title: formatTitle(bookDoc.metadata.title),
           description: bookDoc.metadata.description,
@@ -164,7 +184,10 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
       if (!controller.signal.aborted) setError(_('X-Ray update failed.'));
     } finally {
       if (!controller.signal.aborted) setIsUpdating(false);
-      if (updateController.current === controller) updateController.current = null;
+      if (updateController.current === controller) {
+        updateController.current = null;
+        reportProgress(null);
+      }
     }
   };
 
@@ -273,6 +296,14 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
             <p className='text-base-content/55 mt-1 text-[11px] tabular-nums'>
               {_('Read through position {{position}}', { position: snapshot.maxPositionIndex + 1 })}
             </p>
+            {updateProgress ? (
+              <p className='text-base-content/55 mt-0.5 text-[11px] tabular-nums' role='status'>
+                {_('Updating {{completed}} / {{total}}', {
+                  completed: updateProgress.completedUnits,
+                  total: updateProgress.totalUnits,
+                })}
+              </p>
+            ) : null}
           </div>
           <button
             type='button'

@@ -2812,5 +2812,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Відновлено колекцію «{{name}}» ({{count}} книга)",
   "Restored collection \"{{name}}\" ({{count}} books)_few": "Відновлено колекцію «{{name}}» ({{count}} книги)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "Відновлено колекцію «{{name}}» ({{count}} книг)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Відновлено колекцію «{{name}}» ({{count}} книги)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Відновлено колекцію «{{name}}» ({{count}} книги)",
+  "Updating {{completed}} / {{total}}": "Оновлення {{completed}} / {{total}}"
 }

@@ -117,6 +117,7 @@ export class XRayPipeline {
     let cursor = committedPosition;
     let completedUnits = 0;
     let batchCount = 0;
+    options.onProgress?.(0, pendingUnits.length);
 
     for (let offset = 0; offset < pendingUnits.length; offset += this.maxUnitsPerBatch) {
       options.signal?.throwIfAborted();

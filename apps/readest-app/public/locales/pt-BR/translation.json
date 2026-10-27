@@ -2744,5 +2744,6 @@
   "Failed to create pack": "Falha ao criar o pacote",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Coleção \"{{name}}\" restaurada ({{count}} livro)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "Coleção \"{{name}}\" restaurada ({{count}} livros)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Coleção \"{{name}}\" restaurada ({{count}} livros)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Coleção \"{{name}}\" restaurada ({{count}} livros)",
+  "Updating {{completed}} / {{total}}": "Atualizando {{completed}} / {{total}}"
 }

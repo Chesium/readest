@@ -2608,5 +2608,6 @@
   "Failed to export package": "Gagal mengeksport pakej",
   "Pack": "Bungkus",
   "Failed to create pack": "Gagal mencipta pakej",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "Koleksi \"{{name}}\" dipulihkan ({{count}} buku)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "Koleksi \"{{name}}\" dipulihkan ({{count}} buku)",
+  "Updating {{completed}} / {{total}}": "Mengemas kini {{completed}} / {{total}}"
 }

@@ -2608,5 +2608,6 @@
   "Failed to export package": "ཐུམ་སྒྲིལ་ཕྱིར་འདྲེན་བྱེད་མ་ཐུབ།",
   "Pack": "ཐུམ་སྒྲིལ།",
   "Failed to create pack": "ཐུམ་སྒྲིལ་བཟོ་མ་ཐུབ།",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "ཚོགས་ \"{{name}}\" སླར་གསོ་བྱས་ཟིན། (དཔེ་ཆ་ {{count}})"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "ཚོགས་ \"{{name}}\" སླར་གསོ་བྱས་ཟིན། (དཔེ་ཆ་ {{count}})",
+  "Updating {{completed}} / {{total}}": "གསར་སྒྱུར་བྱེད་བཞིན་པ {{completed}} / {{total}}"
 }

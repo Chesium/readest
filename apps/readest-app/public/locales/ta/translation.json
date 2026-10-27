@@ -2676,5 +2676,6 @@
   "Pack": "பேக்",
   "Failed to create pack": "பேக்கை உருவாக்க முடியவில்லை",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "தொகுப்பு \"{{name}}\" மீட்டமைக்கப்பட்டது ({{count}} புத்தகம்)",
-  "Restored collection \"{{name}}\" ({{count}} books)_other": "தொகுப்பு \"{{name}}\" மீட்டமைக்கப்பட்டது ({{count}} புத்தகங்கள்)"
+  "Restored collection \"{{name}}\" ({{count}} books)_other": "தொகுப்பு \"{{name}}\" மீட்டமைக்கப்பட்டது ({{count}} புத்தகங்கள்)",
+  "Updating {{completed}} / {{total}}": "புதுப்பிக்கப்படுகிறது {{completed}} / {{total}}"
 }

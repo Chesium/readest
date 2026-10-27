@@ -103,6 +103,25 @@ describe('XRayPipeline', () => {
     expect(extract).toHaveBeenCalledTimes(2);
   });
 
+  it('reports progress before the first batch and after each committed batch', async () => {
+    const readThrough = vi.fn().mockResolvedValue(slice('index-1', [0, 1, 2]));
+    const extract = vi.fn(async ({ units }: { units: readonly XRaySourceUnit[] }) =>
+      extractionFor(units),
+    );
+    const pipeline = new XRayPipeline({ readThrough }, store, { extract } as XRayExtractionModel, {
+      maxUnitsPerBatch: 2,
+    });
+    const onProgress = vi.fn();
+
+    await pipeline.update(BOOK_HASH, 'epubcfi(/6/2!/4/2/1:40)', { onProgress });
+
+    expect(onProgress.mock.calls).toEqual([
+      [0, 3],
+      [2, 3],
+      [3, 3],
+    ]);
+  });
+
   it('keeps the last committed cursor when extraction fails and retries the pending batch', async () => {
     const readThrough = vi.fn().mockResolvedValue(slice('index-1', [0]));
     const extract = vi
