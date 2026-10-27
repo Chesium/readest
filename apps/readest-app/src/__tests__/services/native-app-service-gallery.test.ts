@@ -65,6 +65,13 @@ vi.mock('@/utils/file', () => ({
   RemoteFile: class {},
 }));
 
+// These file-staging tests never import, parse, or sync a book. Loading the
+// real services pulls the document/dictionary parsers and cloud SDK into each
+// cold NativeAppService import, making the first test time out under load.
+vi.mock('@/services/bookService', () => ({}));
+vi.mock('@/services/cloudService', () => ({}));
+vi.mock('@/services/dictionaries/dictionaryService', () => ({}));
+
 vi.mock('@/utils/files', () => ({
   copyFiles: vi.fn().mockResolvedValue(undefined),
 }));
