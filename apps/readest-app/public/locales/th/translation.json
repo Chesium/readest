@@ -2609,5 +2609,6 @@
   "Pack": "แพ็ก",
   "Failed to create pack": "สร้างแพ็กไม่สำเร็จ",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "กู้คืนคอลเลกชัน \"{{name}}\" แล้ว (หนังสือ {{count}} เล่ม)",
-  "Updating {{completed}} / {{total}}": "กำลังอัปเดต {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "กำลังอัปเดต {{completed}} / {{total}}",
+  "Building search index...": "กำลังสร้างดัชนีการค้นหา..."
 }

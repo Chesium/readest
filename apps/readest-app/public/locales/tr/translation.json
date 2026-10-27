@@ -2684,5 +2684,6 @@
   "Failed to create pack": "Paket oluşturulamadı",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "\"{{name}}\" koleksiyonu geri yüklendi ({{count}} kitap)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "\"{{name}}\" koleksiyonu geri yüklendi ({{count}} kitap)",
-  "Updating {{completed}} / {{total}}": "Güncelleniyor {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Güncelleniyor {{completed}} / {{total}}",
+  "Building search index...": "Arama dizini oluşturuluyor..."
 }

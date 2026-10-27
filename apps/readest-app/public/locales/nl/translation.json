@@ -2677,5 +2677,6 @@
   "Failed to create pack": "Pakket maken mislukt",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Collectie \"{{name}}\" hersteld ({{count}} boek)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Collectie \"{{name}}\" hersteld ({{count}} boeken)",
-  "Updating {{completed}} / {{total}}": "Bijwerken {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Bijwerken {{completed}} / {{total}}",
+  "Building search index...": "Zoekindex wordt opgebouwd..."
 }

@@ -2677,5 +2677,6 @@
   "Failed to create pack": "ایجاد بسته ناموفق بود",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "مجموعه «{{name}}» بازیابی شد ({{count}} کتاب)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "مجموعه «{{name}}» بازیابی شد ({{count}} کتاب)",
-  "Updating {{completed}} / {{total}}": "در حال به‌روزرسانی {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "در حال به‌روزرسانی {{completed}} / {{total}}",
+  "Building search index...": "در حال ساخت فهرست جستجو..."
 }

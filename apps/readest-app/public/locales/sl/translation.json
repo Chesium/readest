@@ -2813,5 +2813,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_two": "Zbirka »{{name}}« obnovljena ({{count}} knjigi)",
   "Restored collection \"{{name}}\" ({{count}} books)_few": "Zbirka »{{name}}« obnovljena ({{count}} knjige)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Zbirka »{{name}}« obnovljena ({{count}} knjig)",
-  "Updating {{completed}} / {{total}}": "Posodabljanje {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Posodabljanje {{completed}} / {{total}}",
+  "Building search index...": "Ustvarjanje iskalnega indeksa..."
 }

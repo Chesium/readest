@@ -2677,5 +2677,6 @@
   "Failed to create pack": "A csomag létrehozása sikertelen",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "A(z) „{{name}}” gyűjtemény visszaállítva ({{count}} könyv)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "A(z) „{{name}}” gyűjtemény visszaállítva ({{count}} könyv)",
-  "Updating {{completed}} / {{total}}": "Frissítés {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Frissítés {{completed}} / {{total}}",
+  "Building search index...": "Keresési index készítése..."
 }

@@ -2745,5 +2745,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Colecția „{{name}}” a fost restaurată ({{count}} carte)",
   "Restored collection \"{{name}}\" ({{count}} books)_few": "Colecția „{{name}}” a fost restaurată ({{count}} cărți)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Colecția „{{name}}” a fost restaurată ({{count}} de cărți)",
-  "Updating {{completed}} / {{total}}": "Se actualizează {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Se actualizează {{completed}} / {{total}}",
+  "Building search index...": "Se construiește indexul de căutare..."
 }

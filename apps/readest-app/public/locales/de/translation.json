@@ -2677,5 +2677,6 @@
   "Failed to create pack": "Paket konnte nicht erstellt werden",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Sammlung „{{name}}“ wiederhergestellt ({{count}} Buch)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Sammlung „{{name}}“ wiederhergestellt ({{count}} Bücher)",
-  "Updating {{completed}} / {{total}}": "Aktualisierung {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Aktualisierung {{completed}} / {{total}}",
+  "Building search index...": "Suchindex wird erstellt..."
 }

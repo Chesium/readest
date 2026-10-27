@@ -2745,5 +2745,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Raccolta «{{name}}» ripristinata ({{count}} libro)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "Raccolta «{{name}}» ripristinata ({{count}} libri)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Raccolta «{{name}}» ripristinata ({{count}} libri)",
-  "Updating {{completed}} / {{total}}": "Aggiornamento {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Aggiornamento {{completed}} / {{total}}",
+  "Building search index...": "Creazione indice di ricerca..."
 }

@@ -2677,5 +2677,6 @@
   "Failed to create pack": "ඇසුරුම සෑදීමට අසමත් විය",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "එකතුව \"{{name}}\" ප්‍රතිසාධනය කරන ලදී (පොත් {{count}})",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "එකතුව \"{{name}}\" ප්‍රතිසාධනය කරන ලදී (පොත් {{count}})",
-  "Updating {{completed}} / {{total}}": "යාවත්කාලීන කරමින් {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "යාවත්කාලීන කරමින් {{completed}} / {{total}}",
+  "Building search index...": "සෙවුම් දර්ශකය සාදමින්..."
 }

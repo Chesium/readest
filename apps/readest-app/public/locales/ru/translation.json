@@ -2813,5 +2813,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_few": "Коллекция «{{name}}» восстановлена ({{count}} книги)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "Коллекция «{{name}}» восстановлена ({{count}} книг)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Коллекция «{{name}}» восстановлена ({{count}} книги)",
-  "Updating {{completed}} / {{total}}": "Обновление {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Обновление {{completed}} / {{total}}",
+  "Building search index...": "Создание поискового индекса..."
 }

@@ -2677,5 +2677,6 @@
   "Failed to create pack": "पैक बनाने में विफल",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "संग्रह \"{{name}}\" पुनर्स्थापित किया गया ({{count}} पुस्तक)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "संग्रह \"{{name}}\" पुनर्स्थापित किया गया ({{count}} पुस्तकें)",
-  "Updating {{completed}} / {{total}}": "अपडेट हो रहा है {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "अपडेट हो रहा है {{completed}} / {{total}}",
+  "Building search index...": "खोज इंडेक्स बनाया जा रहा है..."
 }

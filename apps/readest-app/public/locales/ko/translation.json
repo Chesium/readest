@@ -2609,5 +2609,6 @@
   "Pack": "패키지",
   "Failed to create pack": "패키지를 만들지 못했습니다",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "그룹 \"{{name}}\" 복원됨(책 {{count}}권)",
-  "Updating {{completed}} / {{total}}": "업데이트 중 {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "업데이트 중 {{completed}} / {{total}}",
+  "Building search index...": "검색 인덱스 생성 중..."
 }

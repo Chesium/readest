@@ -2677,5 +2677,6 @@
   "Failed to create pack": "Αποτυχία δημιουργίας πακέτου",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Η συλλογή «{{name}}» επαναφέρθηκε ({{count}} βιβλίο)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Η συλλογή «{{name}}» επαναφέρθηκε ({{count}} βιβλία)",
-  "Updating {{completed}} / {{total}}": "Ενημέρωση {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Ενημέρωση {{completed}} / {{total}}",
+  "Building search index...": "Δημιουργία ευρετηρίου αναζήτησης..."
 }

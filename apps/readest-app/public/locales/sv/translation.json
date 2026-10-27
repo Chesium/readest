@@ -2677,5 +2677,6 @@
   "Failed to create pack": "Det gick inte att skapa paketet",
   "Restored collection \"{{name}}\" ({{count}} books)_one": "Samlingen ”{{name}}” återställdes ({{count}} bok)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Samlingen ”{{name}}” återställdes ({{count}} böcker)",
-  "Updating {{completed}} / {{total}}": "Uppdaterar {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Uppdaterar {{completed}} / {{total}}",
+  "Building search index...": "Bygger sökindex..."
 }

@@ -2813,5 +2813,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_few": "Przywrócono kolekcję „{{name}}” ({{count}} książki)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "Przywrócono kolekcję „{{name}}” ({{count}} książek)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "Przywrócono kolekcję „{{name}}” ({{count}} książki)",
-  "Updating {{completed}} / {{total}}": "Aktualizowanie {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "Aktualizowanie {{completed}} / {{total}}",
+  "Building search index...": "Tworzenie indeksu wyszukiwania..."
 }

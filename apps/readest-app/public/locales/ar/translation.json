@@ -2949,5 +2949,6 @@
   "Restored collection \"{{name}}\" ({{count}} books)_few": "تمت استعادة المجموعة \"{{name}}\" ({{count}} كتب)",
   "Restored collection \"{{name}}\" ({{count}} books)_many": "تمت استعادة المجموعة \"{{name}}\" ({{count}} كتابًا)",
   "Restored collection \"{{name}}\" ({{count}} books)_other": "تمت استعادة المجموعة \"{{name}}\" ({{count}} كتاب)",
-  "Updating {{completed}} / {{total}}": "جارٍ التحديث {{completed}} / {{total}}"
+  "Updating {{completed}} / {{total}}": "جارٍ التحديث {{completed}} / {{total}}",
+  "Building search index...": "جارٍ إنشاء فهرس البحث..."
 }
