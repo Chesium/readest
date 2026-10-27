@@ -217,6 +217,20 @@ describe('XRayPipeline', () => {
     await expect(store.getState(BOOK_HASH)).resolves.toMatchObject({ maxPositionIndex: 7 });
   });
 
+  it("passes the book's primary language to the extraction request", async () => {
+    const readThrough = vi.fn().mockResolvedValue(slice('index-1', [0]));
+    const extract = vi.fn<XRayExtractionModel['extract']>(async ({ units }) =>
+      extractionFor(units),
+    );
+    const pipeline = new XRayPipeline({ readThrough }, store, { extract });
+
+    await pipeline.update(BOOK_HASH, 'epubcfi(/6/2!/4/2/1:20)', {
+      metadata: { title: '封锁', language: ['zh-CN', 'en'] },
+    });
+
+    expect(extract.mock.calls[0]![0].language).toBe('zh-CN');
+  });
+
   it('rebuilds only X-Ray-derived rows when the Reedy fingerprint changes', async () => {
     const readThrough = vi
       .fn()

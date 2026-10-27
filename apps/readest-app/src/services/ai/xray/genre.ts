@@ -19,6 +19,7 @@ export interface GenreMetadata {
   readonly subject?: readonly string[];
   readonly description?: string;
   readonly title?: string;
+  readonly language?: string | readonly string[];
 }
 
 type ClassifiedGenre = Exclude<BookGenre, 'unknown'>;

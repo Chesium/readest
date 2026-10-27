@@ -83,6 +83,7 @@ export const useXRayAutoUpdate = (bookKey: string): void => {
         title: formatTitle(bookDoc.metadata.title),
         description: bookDoc.metadata.description,
         subject: getContributorNames(bookDoc.metadata.subject),
+        language: bookDoc.metadata.language,
       },
     });
   }, [aiSettings, appService, bookDoc, bookHash, isPanelOpenForBook, progress?.location]);

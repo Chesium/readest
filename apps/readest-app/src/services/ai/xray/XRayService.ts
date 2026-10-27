@@ -30,7 +30,8 @@ export type XRayProgressUpdateResult =
   | XRayUpdateResult
   | { readonly kind: 'unavailable'; readonly status: XRaySourceStatus };
 
-const XRAY_DERIVATION_VERSION = 1;
+// v2: the extraction prompt names the book's output language.
+const XRAY_DERIVATION_VERSION = 2;
 
 export class XRayService {
   private readonly pipeline: XRayPipeline;

@@ -170,6 +170,7 @@ const XRayView: React.FC<XRayViewProps> = ({ bookKey }) => {
           title: formatTitle(bookDoc.metadata.title),
           description: bookDoc.metadata.description,
           subject: getContributorNames(bookDoc.metadata.subject),
+          language: bookDoc.metadata.language,
         },
       });
       controller.signal.throwIfAborted();

@@ -17,6 +17,8 @@ const updateQueues = new Map<string, Promise<XRayUpdateResult>>();
 export interface XRayExtractionRequest {
   readonly units: readonly XRaySourceUnit[];
   readonly genre: GenreHints;
+  /** The book's primary language tag from its metadata, unvalidated. */
+  readonly language?: string;
   readonly signal?: AbortSignal;
 }
 
@@ -114,6 +116,8 @@ export class XRayPipeline {
     }
 
     const genre = options.metadata ? detectGenre(options.metadata) : getGenreHints('unknown');
+    const bookLanguage = options.metadata?.language;
+    const language = typeof bookLanguage === 'string' ? bookLanguage : bookLanguage?.[0];
     let cursor = committedPosition;
     let completedUnits = 0;
     let batchCount = 0;
@@ -125,7 +129,12 @@ export class XRayPipeline {
       const minPositionIndex = units[0]!.positionIndex;
       const maxPositionIndex = units.at(-1)!.positionIndex;
       const batchId = batchKey(source.fingerprint, minPositionIndex, maxPositionIndex);
-      const extracted = await this.model.extract({ units, genre, signal: options.signal });
+      const extracted = await this.model.extract({
+        units,
+        genre,
+        language,
+        signal: options.signal,
+      });
       options.signal?.throwIfAborted();
       const output = validateXRayExtraction(extracted, units, maxPositionIndex);
       const batch: XRayExtractionBatch = {

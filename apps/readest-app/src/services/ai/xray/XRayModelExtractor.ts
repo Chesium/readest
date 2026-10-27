@@ -1,6 +1,7 @@
 import { generateText, Output } from 'ai';
 
 import type { ChatModel } from '@/services/reedy/models/ChatModel';
+import { getLanguageName, isValidLang } from '@/utils/lang';
 
 import type { XRayExtractionModel, XRayExtractionRequest } from './XRayPipeline';
 import type { XRayModelExtraction } from './types';
@@ -44,9 +45,21 @@ Every entity, fact, relationship, event, and claim must include at least one evi
 Each evidence item must use a supplied unitId and an exactQuote copied verbatim from that unit.
 Set inferred to true only when the quote supports an inference rather than a direct statement.
 Use stable canonical names and put alternate names in aliases.
+${outputLanguageRule(request.language)}
 
 Detected genre: ${request.genre.genre}
 Extraction focus: ${request.genre.extractionFocus.join(', ')}
 Genre guidance:
 ${request.genre.hints.map((hint) => `- ${hint}`).join('\n')}
 `.trim();
+
+// Book metadata is untrusted: only a well-formed BCP 47 tag reaches the prompt.
+const LANGUAGE_TAG = /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i;
+
+const outputLanguageRule = (language: string | undefined): string => {
+  const target =
+    language && LANGUAGE_TAG.test(language) && isValidLang(language)
+      ? `${getLanguageName(language)} (${language}), the language of the book`
+      : 'the language of the excerpts';
+  return `Write all names, aliases, descriptions, fact keys and values, relationship types, event summaries, and claim types and descriptions in ${target}, in every batch. Keep exactQuote verbatim and the schema's enum values (entity type, claim status) unchanged.`;
+};
